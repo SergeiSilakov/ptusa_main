@@ -20,6 +20,9 @@ TOLUA_API int tolua_IOT_dev_open(lua_State* tolua_S);
 //-----------------------------------------------------------------------------
 const int SYS_FILE_CNT = 3;
 const int FILE_CNT     = 7;
+/// Index of `main.restrictions.lua` in FILES[]. Keep last so hot reload
+/// of restrictions survives adding/removing earlier project scripts.
+const int RESTRICTIONS_SCRIPT_N = FILE_CNT - 1;
 //-----------------------------------------------------------------------------
 const int FILES_VERSION[ FILE_CNT ] =
     {

@@ -2,6 +2,7 @@
 #include "bus_coupler_io.h"
 #include "OPCUAServer.h"
 #include "lua_manager.h"
+#include <cstdio>
 
 // Мок для G_OPCUA_SERVER.
 class MockOPCUAServer : public OPCUA_server
@@ -55,6 +56,25 @@ TEST( PAC_info, OPCUA_server_start_fail )
 
     subhook_remove( get_OPC_hook );
     subhook_free( get_OPC_hook );
+    }
+
+TEST( PAC_info, reload_restrictions )
+    {
+    auto L = lua_open();
+    G_LUA_MANAGER->set_Lua( L );
+
+    const char* file_name = "main.restrictions.lua";
+    FILE* f = std::fopen( file_name, "w+" );
+    ASSERT_NE( f, nullptr );
+    std::fprintf( f, "--version = 1\nrestrictions = {}\n" );
+    std::fclose( f );
+
+    auto ret = G_PAC_INFO()->set_cmd( "CMD", 0,
+        static_cast<double>( PAC_info::COMMANDS::RELOAD_RESTRICTIONS ) );
+    EXPECT_EQ( 0, ret );
+
+    std::remove( file_name );
+    G_LUA_MANAGER->free_Lua();
     }
 
 TEST( PAC_info, set_cmd )

@@ -659,10 +659,10 @@ int lua_manager::reload_script( int script_n, const char* script_function_name,
         return 1;
         }
 
-    if ( script_n >= FILE_CNT )
+    if ( script_n < 0 || script_n >= FILE_CNT )
         {
-        G_LOG->error( "Reload Lua script error - script_n >= FILE_CNT (%d>=%d).",
-            script_n, FILE_CNT );
+        G_LOG->error( "Reload Lua script error - script_n out of range "
+            "(%d, FILE_CNT=%d).", script_n, FILE_CNT );
         return 1;
         }
 

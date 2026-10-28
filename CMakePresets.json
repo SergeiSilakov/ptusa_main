@@ -98,6 +98,31 @@
         "ARP_SDK_PACKAGE_NAME": "x86_64-w64-mingw32"
       }
     },
+    {
+      "name": "build-windows-AXCF2000EA-2026-LTS-Release",
+      "displayName": "Windows AXCF2000EA 2026 LTS Release",
+      "description": "ACF-приложение (PAC_PC) + библиотека PLCnext Engineer (PAC_PLCNEXT)",
+      "inherits": "windows-AXCF-default",
+      "environment": {
+        "ARP_DEVICE": "AXCF2000EA",
+        "ARP_DEVICE_VERSION": "2026.0.4 LTS (26.0.4.13)",
+        "ARP_DEVICE_SHORT_VERSION": "2026.0",
+        "ARP_SDK_PACKAGE_NAME": "x86_64-w64-mingw32"
+      },
+      "cacheVariables": {
+        "BUILD_TESTING": "OFF",
+        "LUASQL_DRIVERS": "none"
+      }
+    },
+    {
+      "name": "build-windows-AXCF2000EA-2026-LTS-Debug",
+      "displayName": "Windows AXCF2000EA 2026 LTS Debug",
+      "description": "ACF-приложение (PAC_PC) + библиотека PLCnext Engineer (PAC_PLCNEXT) — для отладки на контроллере",
+      "inherits": "build-windows-AXCF2000EA-2026-LTS-Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
 
 
     {
@@ -273,6 +298,16 @@
       "name": "build-windows-AXCF2152-2026-LTS-Release",
       "displayName": "AXCF2152 2026 LTS",
       "configurePreset": "build-windows-AXCF2152-2026-LTS-Release"
+    },
+    {
+      "name": "build-windows-AXCF2000EA-2026-LTS-Release",
+      "displayName": "AXCF2000EA 2026 LTS",
+      "configurePreset": "build-windows-AXCF2000EA-2026-LTS-Release"
+    },
+    {
+      "name": "build-windows-AXCF2000EA-2026-LTS-Debug",
+      "displayName": "AXCF2000EA 2026 LTS Debug",
+      "configurePreset": "build-windows-AXCF2000EA-2026-LTS-Debug"
     },
 
 

@@ -81,7 +81,10 @@ set(gtest_hide_internal_symbols ON CACHE BOOL "" FORCE)
 add_subdirectory(deps/googletest EXCLUDE_FROM_ALL)
 set(BUILD_SHARED_LIBS ON)
 
-add_subdirectory(deps/subhook EXCLUDE_FROM_ALL)
+if(BUILD_TESTING)
+    # subhook поддерживает только x86, поэтому нужен лишь тестам.
+    add_subdirectory(deps/subhook EXCLUDE_FROM_ALL)
+endif()
 
 # Google Benchmark configuration.
 if(NOT MINGW)
@@ -217,7 +220,12 @@ if(NOT ARP_DEVICE)
     add_dependencies(libptusa_main lua)
 endif()
 
-add_dependencies(lua lfs luasystem term_core luassert_copy luasql_odbc)
+# В кросс-сборке драйвер ODBC не собирается (нет sql.h), цель может отсутствовать.
+if(TARGET luasql_odbc)
+    add_dependencies(lua lfs luasystem term_core luassert_copy luasql_odbc)
+else()
+    add_dependencies(lua lfs luasystem term_core luassert_copy)
+endif()
 
 if(MSVC)
     set_property(TARGET libptusa_main PROPERTY VS_DEBUGGER_COMMAND "lua.exe")

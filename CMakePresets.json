@@ -120,7 +120,8 @@
       "description": "ACF-приложение (PAC_PC) + библиотека PLCnext Engineer (PAC_PLCNEXT) — для отладки на контроллере",
       "inherits": "build-windows-AXCF2000EA-2026-LTS-Release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PTUSA_APP_EXEC_ARGS": "-d main.plua"
       }
     },
 

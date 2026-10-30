@@ -1,0 +1,30 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskName": "AXCF: собрать ptusa_main (Debug)",
+      "type": "shell",
+      "command": "cmake --build bin/build/AXCF2000EA_2026.0 --target ptusa_main --parallel 8",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "taskName": "AXCF: упаковать .app (реально, на контроллере)",
+      "type": "shell",
+      "command": "cmake --build bin/build/AXCF2000EA_2026.0 --target acf_package",
+      "problemMatcher": []
+    },
+    {
+      "taskName": "AXCF: упаковать .app (сухой прогон)",
+      "type": "shell",
+      "command": "cmd /c \"set IOL_DRYRUN=1&& cmake --build bin/build/AXCF2000EA_2026.0 --target acf_package\"",
+      "problemMatcher": []
+    },
+    {
+      "taskName": "AXCF: разложить готовые .app в bin/install",
+      "type": "shell",
+      "command": "cmake --build bin/build/AXCF2000EA_2026.0 --target install_app",
+      "problemMatcher": []
+    }
+  ]
+}

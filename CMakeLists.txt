@@ -422,6 +422,64 @@ if(ARP_DEVICE)
      install(FILES ${CMAKE_BINARY_DIR}/PtusaPLCnextEngineer/bin/PtusaPLCnextEngineer.pcwlx
         DESTINATION ${ARP_DEVICE}_${_ARP_SHORT_DEVICE_VERSION}/$<CONFIG>)
 
+    #Готовые пакеты приложений ACF (*.app) кладутся в bin/apps и попадают
+    #в установочный каталог рядом с бинарниками (app/).
+    if(EXISTS "${CMAKE_SOURCE_DIR}/bin/apps")
+        install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/apps/"
+            DESTINATION ${ARP_DEVICE}_${_ARP_SHORT_DEVICE_VERSION}/$<CONFIG>/app
+            FILES_MATCHING PATTERN "*.app")
+    endif()
+
+    #Копирование только готовых *.app в установочный каталог — без сборки
+    #остальных целей (полезно, когда пакет собран отдельно, на контроллере):
+    #    cmake --build bin/build/AXCF2000EA_2026.0 --target install_app
+    add_custom_target(install_app
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "${CMAKE_SOURCE_DIR}/bin/install/${ARP_DEVICE}_${_ARP_SHORT_DEVICE_VERSION}/${CMAKE_BUILD_TYPE}/app"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/bin/apps"
+            "${CMAKE_SOURCE_DIR}/bin/install/${ARP_DEVICE}_${_ARP_SHORT_DEVICE_VERSION}/${CMAKE_BUILD_TYPE}/app"
+        COMMENT "Копирование готовых *.app в bin/install/"
+        VERBATIM)
+
+    #Упаковка приложения ACF: образ и *.app собираются на контроллере
+    #(tools/mkapp-pac.sh), затем пакет раскладывается в
+    #bin/apps и bin/install/<устройство>/<конфигурация>/app.
+    #Запуск: cmake --build <каталог сборки> --target acf_package
+    #В Visual Studio — цель "acf_package" в CMake Targets View.
+    set(PTUSA_APP_VERSION "1.0.2" CACHE STRING "Версия приложения ACF (*.app)")
+    set(PTUSA_APP_EXEC_ARGS "main.plua" CACHE STRING "Exec= в quadlet (например '-d main.plua')")
+    set(PTUSA_APP_HOST "" CACHE STRING "Адрес контроллера для упаковки (пусто = tools/local-settings.cmake или IOL_HOST)")
+    set(PTUSA_APP_SSH_KEY "" CACHE STRING "Ключ PuTTY для упаковки (пусто = tools/local-settings.cmake или IOL_SSH_KEY)")
+
+    add_custom_target(acf_package
+        COMMAND ${CMAKE_COMMAND}
+            "-DCFG=$<CONFIG>"
+            "-DVERSION=${PTUSA_APP_VERSION}"
+            "-DEXEC_ARGS=${PTUSA_APP_EXEC_ARGS}"
+            "-DHOST=${PTUSA_APP_HOST}"
+            "-DKEY=${PTUSA_APP_SSH_KEY}"
+            "-DBUILD_DIR=${CMAKE_BINARY_DIR}"
+            -P "${CMAKE_SOURCE_DIR}/tools/package-acf-app.cmake"
+        COMMENT "Сборка *.app на контроллере и раскладка в bin/install"
+        VERBATIM)
+
+    option(PTUSA_ACF_PACKAGE_AFTER_BUILD
+        "Упаковывать *.app после каждой сборки ptusa_main" OFF)
+    if(PTUSA_ACF_PACKAGE_AFTER_BUILD)
+        add_custom_command(TARGET ptusa_main POST_BUILD
+            COMMAND ${CMAKE_COMMAND}
+                "-DCFG=$<CONFIG>"
+                "-DVERSION=${PTUSA_APP_VERSION}"
+                "-DEXEC_ARGS=${PTUSA_APP_EXEC_ARGS}"
+                "-DHOST=${PTUSA_APP_HOST}"
+                "-DKEY=${PTUSA_APP_SSH_KEY}"
+                "-DBUILD_DIR=${CMAKE_BINARY_DIR}"
+                -P "${CMAKE_SOURCE_DIR}/tools/package-acf-app.cmake"
+            COMMENT "Упаковка *.app после сборки (PTUSA_ACF_PACKAGE_AFTER_BUILD=ON)"
+            VERBATIM)
+    endif()
+
     unset(_ARP_SHORT_DEVICE_VERSION)
 else()
     install(TARGETS ${PROJECT_NAME} libptusa_main

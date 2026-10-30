@@ -1,0 +1,2 @@
+# Скрипты выполняет sh (Git Bash на Windows, Linux, контроллер) — нужны LF.
+*.sh text eol=lf
